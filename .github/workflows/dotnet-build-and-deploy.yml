@@ -97,7 +97,7 @@ jobs:
           push: true
           tags: ${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}
           #  --tag my-image-name:$(date +%s)
-          context: ${{DOCKER_CONTEXT_X}}
+          context: $DOCKER_CONTEXT_X
           secrets: |
             "GPACKAGESTOKEN=${{ secrets.GPACKAGES_TOKEN }}"
 
