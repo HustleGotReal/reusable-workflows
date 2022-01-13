@@ -29,6 +29,8 @@ on:
         required: true
       GPACKAGES_TOKEN:
         required: true
+      KUBECONFIG:
+        required: true
 
 jobs:
   checkout-build-dockerize-and-redeploy:
