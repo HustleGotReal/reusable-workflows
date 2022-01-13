@@ -77,14 +77,14 @@ jobs:
           echo ::set-output name=SOURCE_NAME::$BRANCH
           echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
           echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
-          echo ::set-output name=DOCKERIMAGEANDTAG::$DOCKER_IMAGEBASE:$BRANCH
-          echo ::set-output name=K8S_CONTAINERNAME::$K8S_CONTAINERNAME
+          echo ::set-output name=DOCKERIMAGEANDTAG::${{ inputs.DOCKER_IMAGEBASE }}:$BRANCH
+          echo ::set-output name=K8S_CONTAINERNAME::${{ inputs.K8S_CONTAINERNAME }}
           echo SOURCE_NAME $SOURCE_NAME $BRANCH ~ALSO~ SOURCE_TAG $SOURCE_TAG ~ALSO~ SHA $GITSHA
 
       - uses: docker/login-action@v1
         if: ${{ !env.ACT }}
         with:
-          username: $DOCKERHUB_USER
+          username: ${{ inputs.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       #- name: Set up Docker Buildx (already installed in runners)
@@ -97,7 +97,8 @@ jobs:
           push: true
           tags: ${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}
           #  --tag my-image-name:$(date +%s)
-          context: $DOCKER_CONTEXT_X
+          context: ${{ inputs.DOCKER_CONTEXT_X}}
+          file: ${{ inputs.DOCKER_FILEPATH }}
           secrets: |
             "GPACKAGESTOKEN=${{ secrets.GPACKAGES_TOKEN }}"
 
@@ -114,18 +115,18 @@ jobs:
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
-          command: "patch deploy/$K8S_DEPLOYMENT -n $K8S_NAMESPACE --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
+          command: "patch deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
 
       - name: Redeploy
         if: ${{ !env.ACT }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
-          command: "rollout restart deploy/$K8S_DEPLOYMENT -n $K8S_NAMESPACE"
+          command: "rollout restart deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
 
       - name: Verify Deployment
         if: ${{ !env.ACT }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
-          command: "rollout status deployment $K8S_DEPLOYMENT -n $K8S_NAMESPACE"
+          command: "rollout status deployment ${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
