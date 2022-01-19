@@ -1,0 +1,94 @@
+name: Generate NuGet and push to Github
+
+on:
+  workflow_call:
+    inputs:
+      DOTNET_PROJECT:
+        required: true
+        type: string
+      DOTNET_CSPROJ: 
+        type: string
+        required: true
+      CONFIGURATION:
+        required: true
+        type: string
+      FRAMEWORK: 
+        type: string
+        required: true
+      RUNTIME:
+        required: true
+        type: string
+      ADDITIONAL_PROPERTIES: 
+        type: string
+        required: true
+    secrets:
+      GPACKAGES_TOKEN:
+        required: true
+
+jobs:
+  generate-nuget-and-push:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          #submodules: false
+          #lfs: true
+          clean: true
+
+      - name: Check initial folder
+        run: |
+          echo "Checked out code"
+          ls -la
+          
+      - name: Output debug information
+        id: path_definition
+        run: |
+          echo $PWD
+          echo ${GITHUB_WORKSPACE}/src
+          #echo "PROJECT_DIR=${GITHUB_WORKSPACE}/src" >> $GITHUB_ENV
+          #echo ::set-output name=PROJECT_DIR::"${GITHUB_WORKSPACE}/src"
+          
+      - name: Extract Git Branch information
+        id: branch_name
+        run: |
+          MBRANCH=${GITHUB_REF#refs/*/}
+          GITSHA=${GITHUB_SHA::8}
+          BRANCH="-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
+          if ["$BRANCH" == -master* ] || [["$BRANCH" == -main* ]; then BRANCH="";fi
+          echo BRANCH: $BRANCH;
+          echo ::set-output name=BRANCH::$BRANCH
+          
+      - name: Set VERSION variable from tag
+        id: version_num
+        run: |
+          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+          echo VERSION: $VERSION
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+          
+      - name: Add old nuget source
+        continue-on-error: true
+        run:  dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text
+
+      - name: Clean
+        run: dotnet clean --configuration Release && dotnet nuget locals all --clear
+        
+      - name: Build
+        run: dotnet build --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=Release ${{ inputs.ADDITIONAL_PROPERTIES }} /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}
+
+      - name: Pack
+        run: dotnet pack ${{ input.DOTNET_CSPROJ }}.csproj --no-restore --configuration Release /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
+
+      - name: Push
+        run: dotnet nuget push nupkg-tmp/${{ input.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}.nupkg --source https://nuget.pkg.github.com/HustleGotReal/index.json --api-key ${GPACKAGESTOKEN}
+        env:
+          GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
