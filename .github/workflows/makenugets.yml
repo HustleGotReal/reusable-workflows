@@ -86,9 +86,9 @@ jobs:
         run: dotnet build --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=Release ${{ inputs.ADDITIONAL_PROPERTIES }} /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}
 
       - name: Pack
-        run: dotnet pack ${{ input.DOTNET_CSPROJ }}.csproj --no-restore --configuration Release /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
+        run: dotnet pack ${{ inputs.DOTNET_CSPROJ }}.csproj --no-restore --configuration Release /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
 
       - name: Push
-        run: dotnet nuget push nupkg-tmp/${{ input.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}.nupkg --source https://nuget.pkg.github.com/HustleGotReal/index.json --api-key ${GPACKAGESTOKEN}
+        run: dotnet nuget push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}.nupkg --source https://nuget.pkg.github.com/HustleGotReal/index.json --api-key ${GPACKAGESTOKEN}
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
