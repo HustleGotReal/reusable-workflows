@@ -40,6 +40,7 @@ jobs:
           #submodules: false
           #lfs: true
           clean: true
+          fetch-depth: 0 # Required due to the weg Git works, without it get_previous_tag action won't be able to find any or the correct tags
 
       - name: Check initial folder
         run: |
@@ -72,13 +73,13 @@ jobs:
       #    echo VERSION: $TMPVERSION
       #    echo ::set-output name=VERSION::$TMPVERSION
 
-      - name: Get Latest Tag
-        id: get_latest_tag
+      - name: Get Previous Tag
+        id: get_previous_tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
         
       - name: Set VERSION variable from latest tag
         run: |
-             echo ::set-output name=VERSION::${{ steps.get_latest_tag.outputs.tag }}
+             echo ::set-output name=VERSION::${{ steps.get_previous_tag.outputs.tag }}
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
