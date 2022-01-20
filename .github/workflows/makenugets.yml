@@ -60,15 +60,16 @@ jobs:
           MBRANCH=${GITHUB_REF#refs/*/}
           GITSHA=${GITHUB_SHA::8}
           BRANCH="-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
-          if ["$BRANCH" == -master* ] || [["$BRANCH" == -main* ]; then BRANCH="";fi
+          if ["$BRANCH" == *master* ] || [["$BRANCH" == *main* ]; then BRANCH="";fi
           echo BRANCH: $BRANCH;
           echo ::set-output name=BRANCH::$BRANCH
           
       - name: Set VERSION variable from tag
         id: version_num
         run: |
-          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-          echo VERSION: $VERSION
+          TMPVERSION="${GITHUB_REF/refs\/tags\//}"
+          echo VERSION: $TMPVERSION
+          echo ::set-output name=VERSION::$TMPVERSION
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
