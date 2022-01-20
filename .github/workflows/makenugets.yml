@@ -61,7 +61,7 @@ jobs:
           MBRANCH=${GITHUB_REF#refs/*/}
           GITSHA=${GITHUB_SHA::8}
           BRANCH="-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
-          if ["$BRANCH" == *master* ] || [["$BRANCH" == *main* ]; then BRANCH="";fi
+          if [["$BRANCH" == -master* ]] || [["$BRANCH" == -main* ]]; then BRANCH="";fi
           echo BRANCH: $BRANCH;
           echo ::set-output name=BRANCH::$BRANCH
           
@@ -78,6 +78,7 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
         
       - name: Set VERSION variable from latest tag
+        id: version_num
         run: |
              echo ::set-output name=VERSION::${{ steps.get_previous_tag.outputs.tag }}
 
