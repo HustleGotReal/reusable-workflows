@@ -80,7 +80,7 @@ jobs:
         run:  dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text
 
       - name: Clean
-        run: dotnet clean --configuration Release && dotnet nuget locals all --clear
+        run: dotnet clean --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} --configuration Release && dotnet nuget locals all --clear
         
       - name: Build
         run: dotnet build --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=Release ${{ inputs.ADDITIONAL_PROPERTIES }} /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}
