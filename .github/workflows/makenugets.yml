@@ -115,7 +115,7 @@ jobs:
         run: dotnet tool install gpr -g
 
       - name: Push
-        run: gpr push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN} \
+        run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN} \
              
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
