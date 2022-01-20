@@ -61,8 +61,8 @@ jobs:
           MBRANCH=${GITHUB_REF#refs/*/}
           GITSHA=${GITHUB_SHA::8}
           BRANCH="-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
-          if [["$BRANCH" == -master* ]] || [["$BRANCH" == -main* ]]; then BRANCH="";fi
-          echo BRANCH: $BRANCH;
+          if [[ $BRANCH" == -master.* ]] || [[ $BRANCH == -main.* ]]; then BRANCH="" ;fi
+          echo BRANCH: $BRANCH
           echo ::set-output name=BRANCH::$BRANCH
           
       #- name: Set VERSION variable from tag.
