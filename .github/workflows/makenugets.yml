@@ -86,11 +86,13 @@ jobs:
         run: dotnet clean --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} --configuration Release && dotnet nuget locals all --clear
         
       - name: Restore
-        run: dotnet restore /property:Configuration=${{ inputs.CONFIGURATION }} /property:TargetFramework=${{ inputs.FRAMEWORK }} --runtime ${{ inputs.RUNTIME }} \
+        run: |
+             dotnet restore /property:Configuration=${{ inputs.CONFIGURATION }} /property:TargetFramework=${{ inputs.FRAMEWORK }} --runtime ${{ inputs.RUNTIME }} \
              ${{ inputs.DOTNET_CSPROJ }} ${{ inputs.RESTORE_SOURCES }}
         
       - name: Build
-        run: dotnet build --no-restore -f ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=${{ inputs.CONFIGURATION }} ${{ inputs.ADDITIONAL_PROPERTIES }} \
+        run: |
+             dotnet build --no-restore -f ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=${{ inputs.CONFIGURATION }} ${{ inputs.ADDITIONAL_PROPERTIES }} \
              /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}
 
       - name: Pack
