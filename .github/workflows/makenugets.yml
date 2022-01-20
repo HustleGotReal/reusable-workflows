@@ -9,6 +9,9 @@ on:
       DOTNET_CSPROJ: 
         type: string
         required: true
+      RESTORE_SOURCES:
+        type: string
+        required: true
       CONFIGURATION:
         required: true
         type: string
@@ -20,7 +23,7 @@ on:
         type: string
       ADDITIONAL_PROPERTIES: 
         type: string
-        required: true
+        required: false
     secrets:
       GPACKAGES_TOKEN:
         required: true
@@ -82,11 +85,16 @@ jobs:
       - name: Clean
         run: dotnet clean --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} --configuration Release && dotnet nuget locals all --clear
         
+      - name: Restore
+        run: dotnet restore /property:Configuration=${{ inputs.CONFIGURATION }} /property:TargetFramework=${{ inputs.FRAMEWORK }} --runtime ${{ inputs.RUNTIME }} \
+             ${{ inputs.DOTNET_CSPROJ }} ${{ inputs.RESTORE_SOURCES }}
+        
       - name: Build
-        run: dotnet build --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=Release ${{ inputs.ADDITIONAL_PROPERTIES }} /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}
+        run: dotnet build --no-restore -f ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=${{ inputs.CONFIGURATION }} ${{ inputs.ADDITIONAL_PROPERTIES }} \
+             /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}
 
       - name: Pack
-        run: dotnet pack ${{ inputs.DOTNET_CSPROJ }}.csproj --no-restore --configuration Release /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
+        run: dotnet pack ${{ inputs.DOTNET_CSPROJ }} --no-restore -c ${{ inputs.CONFIGURATION }} /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
 
       - name: Push
         run: dotnet nuget push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}.nupkg --source https://nuget.pkg.github.com/HustleGotReal/index.json --api-key ${GPACKAGESTOKEN}
