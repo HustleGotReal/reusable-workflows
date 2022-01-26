@@ -40,7 +40,7 @@ jobs:
           #submodules: false
           #lfs: true
           clean: true
-          fetch-depth: 0 # Required due to the weg Git works, without it get_previous_tag action won't be able to find any or the correct tags
+          fetch-depth: 0 # Required, without this get_previous_tag action won't be able to find any or the correct tags
 
       - name: Check initial folder
         run: |
@@ -58,8 +58,13 @@ jobs:
         run: |
           MBRANCH=${GITHUB_REF#refs/*/}
           GITSHA=${GITHUB_SHA::8}
-          BRANCH="-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
-          if [[ $BRANCH == -master.* ]] || [[ $BRANCH == -main.* ]]; then BRANCH="" ;fi
+          if [[ $MBRANCH == feature* ]]; then
+            BRANCH="-a-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
+          elif [[ $MBRANCH == master ]] || [[ $MBRANCH == main ]]; then
+            BRANCH="" ;
+          else
+            BRANCH="-${MBRANCH}.$(date +%Y%m%d%H%M)"
+          fi
           echo BRANCH: $BRANCH
           echo ::set-output name=BRANCH::$BRANCH
           
