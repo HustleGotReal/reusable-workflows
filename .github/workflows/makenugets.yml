@@ -75,10 +75,11 @@ jobs:
           VERSIONPROPS=$(cat Directory.Build.props | grep "<VersionPrefix>" | cut -d ">" -f2 | cut -d "<" -f1)
           echo ::set-output name=tag::$VERSIONPROPS
         
-      - name: Set VERSION variable from latest tag
+      - name: Set VERSION variable from Directory.Build.props
         id: version_num
         run: |
           echo ::set-output name=VERSION::${{ steps.get_previous_tag.outputs.tag }}
+          echo VERSION: $VERSION
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
