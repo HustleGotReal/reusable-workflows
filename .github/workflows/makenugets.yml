@@ -67,23 +67,18 @@ jobs:
           fi
           echo BRANCH: $BRANCH
           echo ::set-output name=BRANCH::$BRANCH
-          
-      #- name: Set VERSION variable from tag.
-      ## It only works if it is the same tag that triggered the workflow.
-      #  id: version_num
-      #  run: |
-      #    TMPVERSION="${GITHUB_REF/refs\/tags\//}"
-      #    echo VERSION: $TMPVERSION
-      #    echo ::set-output name=VERSION::$TMPVERSION
 
       - name: Get Previous Tag
         id: get_previous_tag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
+        #uses: WyriHaximus/github-action-get-previous-tag@v1
+        run: |
+          VERSIONPROPS=$(cat Directory.Build.props | grep "[0-9].[0.9].[0-9]" | sed "s+<VersionPrefix>++g" | sed "s+</VersionPrefix>++g")
+          echo ::set-output name=tag::$VERSIONPROPS
         
       - name: Set VERSION variable from latest tag
         id: version_num
         run: |
-             echo ::set-output name=VERSION::${{ steps.get_previous_tag.outputs.tag }}
+          echo ::set-output name=VERSION::${{ steps.get_previous_tag.outputs.tag }}
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
