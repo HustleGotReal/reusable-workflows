@@ -1,2 +1,2 @@
-# dotnet-app-action
-Reusable workflow for build and Deploy on Kubernetes.
+# Reusable workflows
+Reusable workflows for Github Actions for development.
