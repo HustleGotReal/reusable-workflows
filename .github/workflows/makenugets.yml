@@ -108,9 +108,12 @@ jobs:
         run: dotnet pack ${{ inputs.DOTNET_CSPROJ }} --no-restore -c ${{ inputs.CONFIGURATION }} /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
 
       - name: Ensure gpr tool installation for upload NuGets
-        continue-on-error: true
-        # In case it was already installed.
-        run: dotnet tool install gpr -g
+        run: |
+             if [[ -f  /root/.dotnet/tools/gpr ]]; then
+               echo "Is already installed"
+             else
+               dotnet tool install gpr -g
+             fi
 
       - name: Push
         run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}*${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN}
