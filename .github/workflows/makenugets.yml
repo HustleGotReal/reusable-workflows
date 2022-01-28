@@ -9,6 +9,9 @@ on:
       DOTNET_CSPROJ: 
         type: string
         required: true
+      RESTORE_SOURCES:
+        type: string
+        required: true
       CONFIGURATION:
         required: true
         type: string
@@ -20,7 +23,7 @@ on:
         type: string
       ADDITIONAL_PROPERTIES: 
         type: string
-        required: true
+        required: false
     secrets:
       GPACKAGES_TOKEN:
         required: true
@@ -37,6 +40,7 @@ jobs:
           #submodules: false
           #lfs: true
           clean: true
+          fetch-depth: 0 # Required, without this get_previous_tag action won't be able to find any or the correct tags
 
       - name: Check initial folder
         run: |
@@ -48,24 +52,34 @@ jobs:
         run: |
           echo $PWD
           echo ${GITHUB_WORKSPACE}/src
-          #echo "PROJECT_DIR=${GITHUB_WORKSPACE}/src" >> $GITHUB_ENV
-          #echo ::set-output name=PROJECT_DIR::"${GITHUB_WORKSPACE}/src"
           
       - name: Extract Git Branch information
         id: branch_name
         run: |
           MBRANCH=${GITHUB_REF#refs/*/}
           GITSHA=${GITHUB_SHA::8}
-          BRANCH="-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
-          if ["$BRANCH" == -master* ] || [["$BRANCH" == -main* ]; then BRANCH="";fi
-          echo BRANCH: $BRANCH;
+          if [[ $MBRANCH == feature/* ]]; then
+            BRANCH="a-${MBRANCH#feature/}.$(date +%Y%m%d%H%M)"
+          elif [[ $MBRANCH == "master" ]] || [[ $MBRANCH == "main" ]]; then
+            BRANCH="" ;
+          else
+            BRANCH="${MBRANCH}.$(date +%Y%m%d%H%M)"
+          fi
+          echo BRANCH: $BRANCH
           echo ::set-output name=BRANCH::$BRANCH
-          
-      - name: Set VERSION variable from tag
+
+      - name: Get Previous Tag
+        id: get_previous_tag
+        #uses: WyriHaximus/github-action-get-previous-tag@v1
+        run: |
+          VERSIONPROPS=$(cat Directory.Build.props | grep "<VersionPrefix>" | cut -d ">" -f2 | cut -d "<" -f1)
+          echo ::set-output name=tag::$VERSIONPROPS
+        
+      - name: Set VERSION variable from Directory.Build.props
         id: version_num
         run: |
-          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-          echo VERSION: $VERSION
+          echo VERSION: ${{ steps.get_previous_tag.outputs.tag }}
+          echo ::set-output name=VERSION::${{ steps.get_previous_tag.outputs.tag }}
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
@@ -75,20 +89,45 @@ jobs:
         with:
           dotnet-version: 6.0.x
           
-      - name: Add old nuget source
+      - name: Add old nuget source (temporarily)
         continue-on-error: true
-        run:  dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text
-
-      - name: Clean
-        run: dotnet clean --configuration Release && dotnet nuget locals all --clear
+        # In case it was already added.
+        run: dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text
+       
+      - name: Restore
+        run: |
+             dotnet restore /property:Configuration=${{ inputs.CONFIGURATION }} /property:TargetFramework=${{ inputs.FRAMEWORK }} --runtime ${{ inputs.RUNTIME }} \
+             ${{ inputs.DOTNET_CSPROJ }} ${{ inputs.RESTORE_SOURCES }}
         
       - name: Build
-        run: dotnet build --framework ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=Release ${{ inputs.ADDITIONAL_PROPERTIES }} /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}
+        run: |
+             dotnet build --no-restore -f ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=${{ inputs.CONFIGURATION }} ${{ inputs.ADDITIONAL_PROPERTIES }} \
+             /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }}
 
       - name: Pack
-        run: dotnet pack ${{ input.DOTNET_CSPROJ }}.csproj --no-restore --configuration Release /p:Version=${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
+        run: dotnet pack ${{ inputs.DOTNET_CSPROJ }} --no-restore -c ${{ inputs.CONFIGURATION }} /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }} --output nupkg-tmp/
+
+      - name: Ensure gpr tool installation for upload NuGets
+        run: |
+             if [[ -f  /root/.dotnet/tools/gpr ]]; then
+               echo "Is already installed"
+             else
+               dotnet tool install gpr -g
+             fi
 
       - name: Push
-        run: dotnet nuget push nupkg-tmp/${{ input.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}${{ steps.branch_name.outputs.BRANCH }}.nupkg --source https://nuget.pkg.github.com/HustleGotReal/index.json --api-key ${GPACKAGESTOKEN}
+        run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}*${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN}
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
+      
+      - name: Delete old versions (only pre-release)
+        continue-on-error: true
+        if: ${{ steps.branch_name.outputs.BRANCH }} == ""
+        uses: actions/delete-package-versions@v2
+        with: 
+          package-name: ${{ inputs.DOTNET_PROJECT }}
+          repo: 'nugets'
+          token: ${{ secrets.GPACKAGES_TOKEN }}
+          min-versions-to-keep: 20
+          delete-only-pre-release-versions: "true"
+
