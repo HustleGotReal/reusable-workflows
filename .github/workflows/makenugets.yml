@@ -117,3 +117,14 @@ jobs:
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
       
+      - name: Delete old versions (only pre-release)
+        continue-on-error: true
+        if: ${{ steps.branch_name.outputs.BRANCH }} == ""
+        uses: actions/delete-package-versions@v2
+        with: 
+          package-name: ${{ inputs.DOTNET_PROJECT }}
+          repo: 'nugets'
+          token: ${{ secrets.GPACKAGES_TOKEN }}
+          min-versions-to-keep: 20
+          delete-only-pre-release-versions: "true"
+
