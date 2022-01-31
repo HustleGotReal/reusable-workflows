@@ -101,7 +101,7 @@ jobs:
       - name: Restore
         run: |
              dotnet restore /property:Configuration=${{ inputs.CONFIGURATION }} /property:TargetFramework=${{ inputs.FRAMEWORK }} --runtime ${{ inputs.RUNTIME }} \
-             ${{ inputs.DOTNET_CSPROJ }} ${{ inputs.RESTORE_SOURCES }} 
+             ${{ inputs.DOTNET_CSPROJ }} --source https://nuget.pkg.github.com/HustleGotReal/index.json ${{ inputs.RESTORE_SOURCES }}
         
       - name: Build
         run: |
