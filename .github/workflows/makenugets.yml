@@ -92,12 +92,14 @@ jobs:
       - name: Add old nuget source (temporarily)
         continue-on-error: true
         # In case it was already added.
-        run: dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text
+        run: |
+             dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text && \
+             dotnet nuget add source --username hgrbot --password ${{ secrets.GPACKAGES_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/HustleGotReal/index.json"
        
       - name: Restore
         run: |
              dotnet restore /property:Configuration=${{ inputs.CONFIGURATION }} /property:TargetFramework=${{ inputs.FRAMEWORK }} --runtime ${{ inputs.RUNTIME }} \
-             ${{ inputs.DOTNET_CSPROJ }} ${{ inputs.RESTORE_SOURCES }}
+             ${{ inputs.DOTNET_CSPROJ }} ${{ inputs.RESTORE_SOURCES }} 
         
       - name: Build
         run: |
