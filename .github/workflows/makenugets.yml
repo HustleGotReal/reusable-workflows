@@ -89,10 +89,10 @@ jobs:
         with:
           dotnet-version: 6.0.x
           
-      - name: Add old nuget source (temporarily)
-        continue-on-error: true
-        # In case it was already added.
-        run: dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text       
+     # - name: Add old nuget source (temporarily)
+     #   continue-on-error: true
+     #   # In case it was already added.
+     #   run: dotnet nuget add source -u hgr -p hgrpass -n hgrCluster --valid-authentication-types basic https://nuget.hustlegotreal.net/v3/index.json --store-password-in-clear-text       
      
       - name: Add nuget source (Github Packages)
         continue-on-error: true
