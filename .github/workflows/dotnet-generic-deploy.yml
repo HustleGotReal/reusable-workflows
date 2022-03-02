@@ -21,9 +21,6 @@ on:
       K8S_OBJECTTYPE: 
         type: string
         required: true
-      DOCKERHUB_USER: 
-        type: string
-        required: true
     secrets:
       DOCKERHUB_TOKEN:
         required: true
