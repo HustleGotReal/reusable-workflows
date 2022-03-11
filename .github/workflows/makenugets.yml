@@ -86,7 +86,7 @@ jobs:
           if [[ $(curl --silent \
            -H "Accept: application/vnd.github.v3+json" -u hgrbot:${{ secrets.GPACKAGES_TOKEN }} \
            https://api.github.com/orgs/HustleGotReal/packages/nuget/${{ inputs.DOTNET_PROJECT }}/versions | grep '"${{ steps.version_num.outputs.VERSION }}"' > /dev/null) \
-          -eq 0 ]] then
+          -eq 0 ]]; then
            [[ -n "${{ steps.branch_name.outputs.BRANCH }}" ]] || (echo "This version of the package already exists in this branch" ; exit 1) 
           else
            echo "This package doesn't exists yet"
