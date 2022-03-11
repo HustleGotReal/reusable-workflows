@@ -15,6 +15,9 @@ on:
       K8S_RESOURCENAME: 
         type: string
         required: true
+      K8S_ADDITIONAL_RESOURCE:
+        type: string
+        required: false
       K8S_NAMESPACE:
         required: true
         type: string
@@ -108,18 +111,18 @@ jobs:
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify patch ${{ inputs.K8S_OBJECTTYPE }}/${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
+          command: "--insecure-skip-tls-verify patch ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} ${{ inputs.K8S_ADDITIONAL_RESOURCE }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
 
       - name: Redeploy
         if: ${{ !env.ACT }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify rollout restart ${{ inputs.K8S_OBJECTTYPE }}/${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }}"
+          command: "--insecure-skip-tls-verify rollout restart ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} ${{ inputs.K8S_ADDITIONAL_RESOURCE }} -n ${{ inputs.K8S_NAMESPACE }}"
 
       - name: Verify Deployment
         if: ${{ !env.ACT }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify rollout status ${{ inputs.K8S_OBJECTTYPE }}/${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }}"
+          command: "--insecure-skip-tls-verify rollout status ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }}"
