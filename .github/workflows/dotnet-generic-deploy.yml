@@ -118,14 +118,14 @@ jobs:
           command: "--insecure-skip-tls-verify patch ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} ${{ inputs.K8S_ADDITIONAL_RESOURCE }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
 
       - name: Redeploy
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT }} && ${{ inputs.K8S_OBJECTTYPE == cronjob }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
           command: "--insecure-skip-tls-verify rollout restart ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} ${{ inputs.K8S_ADDITIONAL_RESOURCE }} -n ${{ inputs.K8S_NAMESPACE }}"
 
       - name: Verify Deployment
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT }} && ${{ inputs.K8S_OBJECTTYPE == cronjob }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
