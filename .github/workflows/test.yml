@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   testing-jobs:
-    runs-on: ubuntu
+    runs-on: ubuntu-20.04
     env:
       K8S_OBJECTTYPE: cronjob
       K8S_RESOURCENAME: channel-static-updater
