@@ -80,7 +80,6 @@ jobs:
           echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
           echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
           echo ::set-output name=DOCKERIMAGEANDTAG::${{ inputs.DOCKER_IMAGEBASE }}:$BRANCH
-          echo ::set-output name=K8S_CONTAINERNAME::${{ inputs.K8S_CONTAINERNAME }}
           echo SOURCE_NAME $SOURCE_NAME $BRANCH ~ALSO~ SOURCE_TAG $SOURCE_TAG ~ALSO~ SHA $GITSHA
       - uses: docker/login-action@v1
         if: ${{ !env.ACT }}
@@ -102,11 +101,12 @@ jobs:
           file: ${{ inputs.DOCKER_FILEPATH }}
           secrets: |
             "GPACKAGESTOKEN=${{ secrets.GPACKAGES_TOKEN }}"
+          
       - name: Generate patch command for kubectl
         if: ${{ !env.ACT }}
         id: patch_cmd
         run: |
-          CMD='{"spec": {"template": {"spec": {"containers": [{"name":"${{ steps.branch_name.outputs.K8S_CONTAINERNAME }}","image": "${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}"}] }}}}'
+          CMD='{"spec": {"template": {"spec": {"containers": [{"name":"${{ inputs.K8S_CONTAINERNAME }}","image": "${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}"}] }}}}'
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
           
@@ -118,14 +118,14 @@ jobs:
           command: "--insecure-skip-tls-verify patch ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} ${{ inputs.K8S_ADDITIONAL_RESOURCE }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
 
       - name: Redeploy
-        if: ${{ !env.ACT }} && ${{ inputs.K8S_OBJECTTYPE }} != 'cronjob'
+        if: ${{ !env.ACT }} && ${{ inputs.K8S_OBJECTTYPE != 'cronjob' }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
           command: "--insecure-skip-tls-verify rollout restart ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} ${{ inputs.K8S_ADDITIONAL_RESOURCE }} -n ${{ inputs.K8S_NAMESPACE }}"
 
       - name: Verify Deployment
-        if: ${{ !env.ACT }} && ${{ inputs.K8S_OBJECTTYPE }} != 'cronjob'
+        if: ${{ !env.ACT }} && ${{ inputs.K8S_OBJECTTYPE != 'cronjob' }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBECONFIG }}
