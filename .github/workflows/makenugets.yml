@@ -100,7 +100,7 @@ jobs:
         with:
           dotnet-version: 6.0.x
           
-      - name: Add nuget source (Github Packages)
+      - name: Ensure addition of nugets source (Github Packages)
         continue-on-error: true
         run: dotnet nuget add source --username hgrbot --password ${{ secrets.GPACKAGES_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/HustleGotReal/index.json"
        
