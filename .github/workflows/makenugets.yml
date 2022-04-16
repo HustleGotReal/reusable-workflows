@@ -92,13 +92,13 @@ jobs:
            echo "This package doesn't exists yet"
           fi
          
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
+      #- name: Setup NuGet
+      #  uses: NuGet/setup-nuget@v1.0.5
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 6.0.x
+      #- name: Setup .NET
+      #  uses: actions/setup-dotnet@v1
+      #  with:
+      #    dotnet-version: 6.0.x
           
       - name: Ensure addition of nugets source (Github Packages)
         continue-on-error: true
