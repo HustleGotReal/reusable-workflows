@@ -49,6 +49,7 @@ jobs:
           echo "Checked out code"
           ls -la
           echo $PWD
+
       - name: Copy global files to sub directory
         #working-directory: /src/
         run: |
@@ -57,6 +58,7 @@ jobs:
           rm -rf tmp/
           rm -rf output/
           ls -la ./src
+      
       - name: Output debug information
         id: path_definition
         run: |
@@ -110,23 +112,16 @@ jobs:
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
 
+      - name: Create kubeconfig
+        run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > /root/.kube/config
+
       - name: Update version in Cluster
         if: ${{ !env.ACT }}
-        uses: steebchen/kubectl@v2.0.0
-        with:
-          config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify patch deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
+        run: "kubectl --insecure-skip-tls-verify patch deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
 
       - name: Redeploy
         if: ${{ !env.ACT }}
-        uses: steebchen/kubectl@v2.0.0
-        with:
-          config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify rollout restart deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
+        run: "kubectl --insecure-skip-tls-verify rollout restart deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
 
       - name: Verify Deployment
-        if: ${{ !env.ACT }}
-        uses: steebchen/kubectl@v2.0.0
-        with:
-          config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify rollout status deployment ${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
+        run: "kubectl --insecure-skip-tls-verify rollout status deployment ${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
