@@ -112,16 +112,23 @@ jobs:
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
 
-      - name: Create kubeconfig
-        run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > /root/.kube/config
-
       - name: Update version in Cluster
         if: ${{ !env.ACT }}
-        run: "kubectl --insecure-skip-tls-verify patch deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
+        uses: steebchen/kubectl@v2.0.0
+        with:
+          config: ${{ secrets.KUBECONFIG }}
+          command: "--insecure-skip-tls-verify patch deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
 
       - name: Redeploy
         if: ${{ !env.ACT }}
-        run: "kubectl --insecure-skip-tls-verify rollout restart deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
+        uses: steebchen/kubectl@v2.0.0
+        with:
+          config: ${{ secrets.KUBECONFIG }}
+          command: "--insecure-skip-tls-verify rollout restart deploy/${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
 
       - name: Verify Deployment
-        run: "kubectl --insecure-skip-tls-verify rollout status deployment ${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
+        if: ${{ !env.ACT }}
+        uses: steebchen/kubectl@v2.0.0
+        with:
+          config: ${{ secrets.KUBECONFIG }}
+          command: "--insecure-skip-tls-verify rollout status deployment ${{ inputs.K8S_DEPLOYMENT }} -n ${{ inputs.K8S_NAMESPACE }}"
