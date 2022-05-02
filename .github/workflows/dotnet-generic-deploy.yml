@@ -55,8 +55,7 @@ jobs:
       - name: Copy global files to sub directory
         #working-directory: /src/
         run: |
-          cp .dockerignore ./src
-          cp Directory.Build.props ./src
+          cp .dockerignore ./src && cp Directory.Build.props ./src
           rm -rf tmp/
           rm -rf output/
           ls -la ./src
