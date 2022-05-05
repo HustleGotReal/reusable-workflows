@@ -112,9 +112,12 @@ jobs:
         id: patch_cmd
         run: |
           CMD='{"spec": {"template": {"spec": {"containers": [{"name":"${{ inputs.K8S_CONTAINERNAME }}","image": "${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}"}] }}}}'
+          if [ ${{ inputs.K8S_OBJECTTYPE }} == "cronjob" ]; then
+          CMD='{"spec": {"jobTemplate": {"spec": {"template": {"spec": {"containers": [{"name":"${{ inputs.K8S_CONTAINERNAME }}","image": "${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}"}] }}}}}}' ;
+          fi
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
-      
+
       - name: Create kubeconfig
         run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > /root/.kube/config
       
