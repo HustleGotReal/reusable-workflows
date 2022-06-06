@@ -130,7 +130,7 @@ jobs:
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
       
-      - name: Delete old versions (only pre-release)
+      - name: Delete old nugets versions
         continue-on-error: true
         if: ${{ steps.branch_name.outputs.BRANCH }} == ""
         uses: actions/delete-package-versions@v2
