@@ -34,6 +34,8 @@ on:
         required: true
       KUBECONFIG:
         required: true
+      AWS_CREDENTIALS:
+        required: false
 
 jobs:
   checkout-build-dockerize-and-redeploy:
@@ -117,6 +119,10 @@ jobs:
           fi
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
+
+      - name: Add github-ci User to AWS Credentials file
+        continue-on-error: true
+        run: echo "${{ secrets.AWS_CREDENTIALS }}" > /root/.aws/credentials
 
       - name: Create kubeconfig
         run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > /root/.kube/config
