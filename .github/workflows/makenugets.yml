@@ -37,7 +37,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          submodules: false
+          #submodules: false
           #lfs: true
           clean: true
           fetch-depth: 0 # Required, without this get_previous_tag action won't be able to find any or the correct tags
