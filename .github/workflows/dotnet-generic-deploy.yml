@@ -34,6 +34,8 @@ on:
         required: true
       KUBECONFIG:
         required: true
+      AWS_CREDENTIALS:
+        required: false
 
 jobs:
   checkout-build-dockerize-and-redeploy:
@@ -55,8 +57,7 @@ jobs:
       - name: Copy global files to sub directory
         #working-directory: /src/
         run: |
-          cp .dockerignore ./src
-          cp Directory.Build.props ./src
+          cp .dockerignore ./src && cp Directory.Build.props ./src
           rm -rf tmp/
           rm -rf output/
           ls -la ./src
@@ -84,6 +85,9 @@ jobs:
           echo ::set-output name=DOCKERIMAGEANDTAG::${{ inputs.DOCKER_IMAGEBASE }}:$BRANCH
           echo SOURCE_NAME $SOURCE_NAME $BRANCH ~ALSO~ SOURCE_TAG $SOURCE_TAG ~ALSO~ SHA $GITSHA
       
+      - name: Set Google DNS
+        run: echo "nameserver 8.8.8.8" > /etc/resolv.conf && echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+      
       - uses: docker/login-action@v1
         if: ${{ !env.ACT }}
         with:
@@ -110,9 +114,16 @@ jobs:
         id: patch_cmd
         run: |
           CMD='{"spec": {"template": {"spec": {"containers": [{"name":"${{ inputs.K8S_CONTAINERNAME }}","image": "${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}"}] }}}}'
+          if [ ${{ inputs.K8S_OBJECTTYPE }} == "cronjob" ]; then
+          CMD='{"spec": {"jobTemplate": {"spec": {"template": {"spec": {"containers": [{"name":"${{ inputs.K8S_CONTAINERNAME }}","image": "${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}"}] }}}}}}' ;
+          fi
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
-      
+
+      - name: Add github-ci User to AWS Credentials file
+        continue-on-error: true
+        run: echo "${{ secrets.AWS_CREDENTIALS }}" > /root/.aws/credentials
+
       - name: Create kubeconfig
         run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > /root/.kube/config
       

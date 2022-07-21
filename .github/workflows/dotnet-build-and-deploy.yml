@@ -49,7 +49,6 @@ jobs:
           echo "Checked out code"
           ls -la
           echo $PWD
-
       - name: Copy global files to sub directory
         #working-directory: /src/
         run: |
@@ -58,7 +57,6 @@ jobs:
           rm -rf tmp/
           rm -rf output/
           ls -la ./src
-      
       - name: Output debug information
         id: path_definition
         run: |
@@ -82,6 +80,9 @@ jobs:
           echo ::set-output name=DOCKERIMAGEANDTAG::${{ inputs.DOCKER_IMAGEBASE }}:$BRANCH
           echo ::set-output name=K8S_CONTAINERNAME::${{ inputs.K8S_CONTAINERNAME }}
           echo SOURCE_NAME $SOURCE_NAME $BRANCH ~ALSO~ SOURCE_TAG $SOURCE_TAG ~ALSO~ SHA $GITSHA
+
+      - name: Set Google DNS
+        run: echo "nameserver 8.8.8.8" > /etc/resolv.conf && echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
       - uses: docker/login-action@v1
         if: ${{ !env.ACT }}
@@ -111,7 +112,7 @@ jobs:
           CMD='{"spec": {"template": {"spec": {"containers": [{"name":"${{ steps.branch_name.outputs.K8S_CONTAINERNAME }}","image": "${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}"}] }}}}'
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
-
+          
       - name: Create kubeconfig
         run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > /root/.kube/config
 
