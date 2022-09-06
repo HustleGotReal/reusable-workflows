@@ -18,7 +18,7 @@ on:
         required: true
 
 jobs:
-  checkout-build-dockerize-and-redeploy:
+  build-and-dockerize:
     runs-on: self-hosted
 
     steps:
