@@ -20,7 +20,7 @@ on:
         required: false
 
 jobs:
-  checkout-build-dockerize-and-redeploy:
+  update-kubernetes-resource:
     runs-on: self-hosted
     steps:
       - name: Extract Git Branch information
