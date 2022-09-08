@@ -1,39 +1,23 @@
 name: Worfklow for testing (Act env)
 on:
   workflow_dispatch:
+    inputs: 
+      secrets:
+        SONARQUBE_HOST:
+          required: true
+        SONARQUBE_TOKEN:
+          required: true
 jobs:
   testing-jobs:
     runs-on: ubuntu-20.04
-    env:
-      K8S_OBJECTTYPE: cronjob
-      K8S_RESOURCENAME: channel-static-updater
-      K8S_NAMESPACE: live-jobs
     steps:
-      - name: Generate patch command for kubectl
-        if: ${{ !env.ACT }}
-        id: patch_cmd
-        run: |
-          CMD='{"spec": {"template": {"spec": {"containers": [{"name":"${{ steps.branch_name.outputs.channel-static-updater }}","image": "hustlegotreal/channelstaticupdater:master"}] }}}}'
-          echo Going to execute : $CMD
-          echo ::set-output name=K8SPATCH::$CMD
-
-      - name: Update version in Cluster
-        if: ${{ !env.ACT }}
-        uses: steebchen/kubectl@v2.0.0
-        with:
-          config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify patch $K8S_OBJECTTYPE $K8S_RESOURCENAME -n $NAMESPACE --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
-
-      - name: Redeploy
-        if: ${{ !env.ACT }}
-        uses: steebchen/kubectl@v2.0.0
-        with:
-          config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify rollout restart $K8S_OBJECTTYPE $K8S_RESOURCENAME $K8S_ADDITIONAL_RESOURCE -n $K8S_NAMESPACE"
-
-      - name: Verify Deployment
-        if: ${{ !env.ACT }}
-        uses: steebchen/kubectl@v2.0.0
-        with:
-          config: ${{ secrets.KUBECONFIG }}
-          command: "--insecure-skip-tls-verify rollout status $K8S_OBJECTTYPE $K8S_RESOURCENAME -n $K8S_NAMESPACE --timeout=3m"
+    - name: Checking out
+      uses: actions/checkout@master
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: kitabisa/sonarqube-action@v1.2.0
+      with:
+        host: ${{ secrets.SONARQUBE_HOST }}
+        login: ${{ secrets.SONARQUBE_TOKEN }}
