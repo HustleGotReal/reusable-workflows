@@ -8,7 +8,7 @@ on:
       SONARQUBE_TOKEN:
         required: true
 jobs:
-  testing-jobs:
+  analyze-code:
     runs-on: ubuntu-20.04
     steps:
     - name: Checking out
