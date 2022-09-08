@@ -4,6 +4,9 @@ name: Generic Kubernetes Deploy for serverless apps
 on:
   workflow_call:
     inputs:
+      DOCKER_IMAGEBASE:
+        required: true
+        type: string
       K8S_RESOURCENAME:
         type: string
         required: true
@@ -46,4 +49,4 @@ jobs:
       
       - name: Update version in Cluster
         if: ${{ !env.ACT }}
-        run: "kn service update ${{ inputs.K8S_RESOURCENAME }} --image=${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }} -n ${{ inputs.K8S_NAMESPACE }}"
+        run: "kn service update ${{ inputs.K8S_RESOURCENAME }} --image=${{ inputs.DOCKER_IMAGEBASE }}${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }} -n ${{ inputs.K8S_NAMESPACE }}"
