@@ -1,3 +1,4 @@
+
 name: Analyze code with Sonarqube
 on:
   workflow_call:
