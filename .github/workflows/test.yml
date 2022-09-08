@@ -1,12 +1,11 @@
 name: Worfklow for testing (Act env)
 on:
   workflow_call:
-    inputs: 
-      secrets:
-        SONARQUBE_HOST:
-          required: true
-        SONARQUBE_TOKEN:
-          required: true
+    secrets:
+      SONARQUBE_HOST:
+        required: true
+      SONARQUBE_TOKEN:
+        required: true
 jobs:
   testing-jobs:
     runs-on: ubuntu-20.04
