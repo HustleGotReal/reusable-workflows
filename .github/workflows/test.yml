@@ -1,6 +1,6 @@
 name: Worfklow for testing (Act env)
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs: 
       secrets:
         SONARQUBE_HOST:
