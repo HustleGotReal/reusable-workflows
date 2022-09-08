@@ -1,4 +1,4 @@
-name: Worfklow for testing (Act env)
+name: Analyze code with Sonarqube
 on:
   workflow_call:
     secrets:
