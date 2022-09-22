@@ -31,6 +31,7 @@ jobs:
       K8S_NAMESPACE: live
     secrets:
       KUBECONFIG: ${{secrets.KUBECONFIG}}
+      AWS_CREDENTIALS: ${{secrets.AWS_CREDENTIALS}}
 
   analyze-code:
     uses: HustleGotReal/reusable-workflows/.github/workflows/analyze-code-sonarqubecli.yml@master
