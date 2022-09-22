@@ -37,8 +37,8 @@ jobs:
           echo $PWD
 
       - name: If it is a .NET project. Copy global files to sub directory
-        #working-directory: /src/
-        
+        continue-on-error: true
+        #working-directory: /src/                
         run: |
           cp .dockerignore ./src
           cp Directory.Build.props ./src
