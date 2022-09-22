@@ -16,7 +16,7 @@ on:
       DOCKERHUB_TOKEN:
         required: true
       GPACKAGES_TOKEN:
-        required: true
+        required: false
 
 jobs:
   build-and-push-image:
@@ -36,8 +36,9 @@ jobs:
           ls -la
           echo $PWD
 
-      - name: Copy global files to sub directory
+      - name: If it is a .NET project. Copy global files to sub directory
         #working-directory: /src/
+        
         run: |
           cp .dockerignore ./src
           cp Directory.Build.props ./src
