@@ -19,6 +19,9 @@ on:
       K8S_CONTAINERNAME:
         type: string
         required: true
+      DOCKER_IMAGEBASE:
+        type: string
+        required: true
     secrets:
       KUBECONFIG:
         required: true
