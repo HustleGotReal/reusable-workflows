@@ -32,13 +32,6 @@ jobs:
   update-kubernetes-resource:
     runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          #submodules: false
-          #lfs: true
-          clean: true
-
       - name: Extract Git Branch information
         id: branch_name
         run: |
