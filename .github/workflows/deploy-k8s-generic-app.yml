@@ -49,7 +49,7 @@ jobs:
           if [[ "$BRANCH" == "develop" ]]; then BRANCH="$(BRANCH)$(date +%s)"; fi
           echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           echo "DOCKERIMAGEANDTAG=${{ inputs.DOCKER_IMAGEBASE }}:$BRANCH" >> $GITHUB_OUTPUT
-          echo Started by: $GITHUB_ACTOR | SHA: $GITHUB_SHA | Tag: ${GITHUB_REF#refs/tags/}
+          echo "Started by: $GITHUB_ACTOR | SHA: $GITHUB_SHA | Tag: ${GITHUB_REF#refs/tags/}"
       
       - name: Generate patch command for kubectl
         if: ${{ !env.ACT }}
