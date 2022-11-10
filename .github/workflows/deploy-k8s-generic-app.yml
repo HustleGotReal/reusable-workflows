@@ -32,18 +32,10 @@ jobs:
   update-kubernetes-resource:
     runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          #submodules: false
-          #lfs: true
-          clean: true
-
       - name: Extract Git Branch information
         id: branch_name
         run: |
           MBRANCH=${GITHUB_REF#refs/*/}
-          GITSHA=${GITHUB_SHA::8}
           BRANCH=${MBRANCH#feature/}
           echo "BRANCH: $BRANCH";
           if [[ "$BRANCH" == "develop" ]]; then BRANCH="$(BRANCH)$(date +%s)"; fi
