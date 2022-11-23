@@ -122,7 +122,7 @@ jobs:
              fi
 
       - name: Push
-        run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}*${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN}
+        run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_CSPROJ }}.${{ steps.version_num.outputs.VERSION }}*${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN}
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
       
@@ -131,7 +131,7 @@ jobs:
         if: ${{ steps.branch_name.outputs.BRANCH }} == ""
         uses: actions/delete-package-versions@v3
         with: 
-          package-name: ${{ inputs.DOTNET_PROJECT }}
+          package-name: ${{ inputs.DOTNET_CSPROJ }}
           repo: 'nugets'
           token: ${{ secrets.GPACKAGES_TOKEN }}
           min-versions-to-keep: 40
