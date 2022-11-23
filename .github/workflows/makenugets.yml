@@ -111,7 +111,7 @@ jobs:
              /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }}
 
       - name: Pack
-        run: dotnet pack ${{ inputs.DOTNET_CSPROJ }} -c ${{ inputs.CONFIGURATION }} /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }} /p:GenerateAssemblyInfo=true /p:DebugSymbols=true /p:DebugType=portable /p:SymbolPackageFormat=snupkg --output nupkg-tmp/
+        run: dotnet pack ${{ inputs.DOTNET_PROJECT }} -c ${{ inputs.CONFIGURATION }} /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }} /p:GenerateAssemblyInfo=true /p:DebugSymbols=true /p:DebugType=portable /p:SymbolPackageFormat=snupkg --output nupkg-tmp/
 
       - name: Ensure gpr tool installation for upload NuGets
         run: |
@@ -122,7 +122,7 @@ jobs:
              fi
 
       - name: Push
-        run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_CSPROJ }}.${{ steps.version_num.outputs.VERSION }}*${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN}
+        run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}*${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN}
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
       
