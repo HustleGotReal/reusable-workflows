@@ -70,4 +70,4 @@ jobs:
 
       - name: Verify Deployment
         if: ${{ (!env.ACT) && (inputs.K8S_OBJECTTYPE != 'cronjob') }}
-        run: "kubectl --insecure-skip-tls-verify rollout status ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }} --timeout=3m"
+        run: "kubectl --insecure-skip-tls-verify rollout status ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }} --timeout=5m"
