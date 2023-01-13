@@ -105,7 +105,7 @@ jobs:
         
       - name: Build
         run: |
-             dotnet build -f ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=${{ inputs.CONFIGURATION }} ${{ inputs.ADDITIONAL_PROPERTIES }} /p:GenerateAssemblyInfo=true /p:DebugSymbols=true /p:DebugType=portable /p:SymbolPackageFormat=snupkg \
+             dotnet build -f ${{ inputs.FRAMEWORK }} -r ${{ inputs.RUNTIME }} ${{ inputs.DOTNET_CSPROJ }} /property:Configuration=${{ inputs.CONFIGURATION }} ${{ inputs.ADDITIONAL_PROPERTIES }} /p:DebugSymbols=true /p:DebugType=portable /p:SymbolPackageFormat=snupkg \
              /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }}
       - name: Pack
         run: dotnet pack ${{ inputs.DOTNET_CSPROJ }} -c ${{ inputs.CONFIGURATION }} /p:VersionPrefix=${{ steps.version_num.outputs.VERSION }} /p:VersionSuffix=${{ steps.branch_name.outputs.BRANCH }} /p:GenerateAssemblyInfo=true /p:DebugSymbols=true /p:DebugType=portable /p:SymbolPackageFormat=snupkg --output nupkg-tmp/
