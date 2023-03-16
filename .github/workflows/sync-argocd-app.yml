@@ -1,3 +1,5 @@
+name: Sync ArgoCD app
+
 on:
   workflow_call:
     inputs:
@@ -9,7 +11,7 @@ on:
         required: true
 
 jobs:
-  update_manifest:
+  sync-app:
     runs-on: self-hosted
     steps:
       - name: ArgoCD authentication
