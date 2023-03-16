@@ -1,0 +1,19 @@
+on:
+  workflow_call:
+    inputs:
+      ARGOCD_APPLICATION:
+        type: string
+        required: true
+    secrets:
+      ARGOCD_TOKEN:
+        required: true
+
+jobs:
+  update_manifest:
+    runs-on: self-hosted
+    steps:
+      - name: ArgoCD authentication
+        run: argocd login grpc-argocd.hustlegotreal.net --username=syncmaster --password='${{ secrets.ARGOCD_TOKEN }}'
+
+      - name: ArgoCD app sync
+        run: argocd app sync ${{ env.ARGOCD_APPLICATION }}

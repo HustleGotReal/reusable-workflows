@@ -1,0 +1,44 @@
+name: Update deployment manifest in argocd
+
+on:
+  workflow_call:
+    inputs:
+      K8S_RESOURCENAME:
+        type: string
+        required: true
+      K8S_NAMESPACE:
+        required: true
+        type: string
+      K8S_OBJECTTYPE:
+        type: string
+        required: true
+      K8S_CONTAINERNAME:
+        type: string
+        required: true
+    secrets:
+      GITHUB_PAT:
+        required: true
+
+jobs:
+  update_manifest:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout argocd repo & update manifest
+        uses: actions/checkout@v2
+        with:
+          repository: argocd
+          ref: master
+          token: ${{ secrets.GITHUB_PAT }}
+        run: |
+          MANIFEST=${{ env.K8S_NAMESPACE }}/${{ env.K8S_RESOURCE_NAME }}-${{ env.K8S_OBJECTYPE }}
+          # Get the tag from the trigger event
+          TAG=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\///")
+          # Update the version in the deployment manifest
+          yq eval ".spec.template.spec.containers(name==${{ env.K8S_CONTAINERNAME }}).image |= sub(\":.*\",\":${TAG}\")" ${MANIFEST}.yaml
+
+          # Push a commit
+          git config user.name hgrbot
+          git config user.email hgrbot@gmail.com
+          git add ${MANIFEST}.yaml
+          git commit -m "Upload ${{ env.K8S_RESOURCE_NAME }} to version ${TAG}"
+          git push
