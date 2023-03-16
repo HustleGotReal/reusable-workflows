@@ -29,7 +29,7 @@ jobs:
           repository: argocd
           ref: master
           token: ${{ secrets.GITHUB_PAT }}
-        run: |
+      - run: |
           MANIFEST=${{ env.K8S_NAMESPACE }}/${{ env.K8S_RESOURCE_NAME }}-${{ env.K8S_OBJECTYPE }}
           # Get the tag from the trigger event
           TAG=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\///")
