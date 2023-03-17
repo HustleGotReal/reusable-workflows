@@ -24,21 +24,21 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout argocd repo & update manifest
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: HustleGotReal/argocd
           ref: master
           token: ${{ secrets.GITHUB_PAT }}
       - run: |
-          MANIFEST=${{ env.K8S_NAMESPACE }}/${{ env.K8S_RESOURCE_NAME }}-${{ env.K8S_OBJECTYPE }}
+          MANIFEST=${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCE_NAME }}-${{ inputs.K8S_OBJECTYPE }}
           # Get the tag from the trigger event
-          TAG=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\///")
+          TAG=${GITHUB_REF#refs/tags/}
           # Update the version in the deployment manifest
-          yq eval ".spec.template.spec.containers(name==${{ env.K8S_CONTAINERNAME }}).image |= sub(\":.*\",\":${TAG}\")" ${MANIFEST}.yaml
+          yq eval ".spec.template.spec.containers(name==${{ inputs.K8S_CONTAINERNAME }}).image |= sub(\":.*\",\":$TAG\")" $MANIFEST.yaml
 
           # Push a commit
           git config user.name hgrbot
           git config user.email hgrbot@gmail.com
           git add ${MANIFEST}.yaml
-          git commit -m "Upload ${{ env.K8S_RESOURCE_NAME }} to version ${TAG}"
+          git commit -m "Upload ${{ inputs.K8S_RESOURCE_NAME }} to version ${TAG}"
           git push
