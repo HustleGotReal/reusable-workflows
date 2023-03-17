@@ -26,7 +26,7 @@ jobs:
       - name: Checkout argocd repo & update manifest
         uses: actions/checkout@v2
         with:
-          repository: argocd
+          repository: HustleGotReal/argocd
           ref: master
           token: ${{ secrets.GITHUB_PAT }}
       - run: |
