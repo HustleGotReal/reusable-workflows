@@ -17,10 +17,17 @@ on:
         required: true
       GPACKAGES_TOKEN:
         required: false
+    outputs:
+      source_tag:
+        description: "Release version that will be used for another reusable workflow"
+        value: ${{ jobs.build-and-push-image.outputs.tag }}
 
 jobs:
   build-and-push-image:
     runs-on: self-hosted
+
+    outputs:
+      tag: ${{ steps.branch_name.outputs.SOURCE_TAG }}
 
     steps:
       - name: Checkout code
