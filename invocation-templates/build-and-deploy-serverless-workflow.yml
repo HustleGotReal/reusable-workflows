@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-push-image:
-    uses: HustleGotReal/reusable-workflows/.github/workflows/build-dotnet-image.yml@master
+    uses: HustleGotReal/reusable-workflows/.github/workflows/build-container-image.yml@master
     with:
       DOCKER_IMAGEBASE: hustlegotreal/newmicroapi
       DOCKER_FILEPATH: ./src/NewMicroApi/Dockerfile
