@@ -33,9 +33,9 @@ jobs:
           ref: master
           token: ${{ secrets.GITHUB_PAT }}
       - run: |
-          MANIFEST=${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}
           # Update the version in the deployment manifest
-          yq eval ".spec.template.spec.containers(name==${{ inputs.K8S_CONTAINERNAME }}).image |= sub(\":.*\",\":${{ inputs.TAG }}\")" "${MANIFEST}.yaml"
+          yq eval ".spec.template.spec.containers(name==${{ inputs.K8S_CONTAINERNAME }}).image |= sub(\":.*\",\":${{ inputs.TAG }}\")" \
+          "${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml"
 
           # Push a commit
           git config user.name hgrbot
