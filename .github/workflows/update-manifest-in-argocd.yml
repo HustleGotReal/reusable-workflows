@@ -56,9 +56,5 @@ jobs:
           git commit -m "Upload ${{ inputs.K8S_RESOURCENAME }} to version ${{ inputs.TAG }}"
 
       - name: Push commit
-        uses: actions/checkout@v3
-        with:
-          repository: HustleGotReal/argocd
-          token: ${{ secrets.GITHUB_PAT }}
-      - run: |
+        run: |
           git push origin master
