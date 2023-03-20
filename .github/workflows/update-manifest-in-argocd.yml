@@ -3,6 +3,9 @@ name: Update deployment manifest in argocd
 on:
   workflow_call:
     inputs:
+      DOCKER_IMAGEBASE:
+        type: string
+        required: true
       K8S_RESOURCENAME:
         type: string
         required: true
@@ -34,8 +37,8 @@ jobs:
           token: ${{ secrets.GITHUB_PAT }}
       - run: |
           # Update the version in the deployment manifest
-          yq eval ".spec.template.spec.containers(name=='${{ inputs.K8S_CONTAINERNAME }}').image |= sub(\":.*\",\":${{ inputs.TAG }}\")" \
-          "${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml"
+          yq eval '.spec.template.spec.containers = [(.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
+          "${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml -i"
 
           # Push a commit
           git config user.name hgrbot

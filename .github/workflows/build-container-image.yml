@@ -21,6 +21,9 @@ on:
       source_tag:
         description: "Release version or branch name that will be used for another reusable workflow"
         value: ${{ jobs.build-and-push-image.outputs.tag }}
+      image_base:
+        description: "Docker image and repo name"
+        value: ${{ inputs.DOCKER_IMAGEBASE }}
 
 jobs:
   build-and-push-image:
