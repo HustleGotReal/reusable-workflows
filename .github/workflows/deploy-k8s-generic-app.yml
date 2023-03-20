@@ -38,7 +38,6 @@ jobs:
           MBRANCH=${GITHUB_REF#refs/*/}
           BRANCH=${MBRANCH#feature/}
           echo "BRANCH: $BRANCH";
-          if [[ "$BRANCH" == "develop" ]]; then BRANCH="$(BRANCH)$(date +%s)"; fi
           echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           echo "DOCKERIMAGEANDTAG=${{ inputs.DOCKER_IMAGEBASE }}:$BRANCH" >> $GITHUB_OUTPUT
           echo "Started by: $GITHUB_ACTOR | SHA: $GITHUB_SHA | Tag: ${GITHUB_REF#refs/tags/}"
@@ -71,4 +70,4 @@ jobs:
 
       - name: Verify Deployment
         if: ${{ (!env.ACT) && (inputs.K8S_OBJECTTYPE != 'cronjob') }}
-        run: "kubectl --insecure-skip-tls-verify rollout status ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }} --timeout=3m"
+        run: "kubectl --insecure-skip-tls-verify rollout status ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} -n ${{ inputs.K8S_NAMESPACE }} --timeout=5m"

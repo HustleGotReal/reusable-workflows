@@ -53,7 +53,6 @@ jobs:
           echo "Checked out code"
           ls -la
           echo $PWD
-
       - name: Copy global files to sub directory
         #working-directory: /src/
         run: |
@@ -87,7 +86,7 @@ jobs:
       
       - name: Set Google DNS
         run: echo "nameserver 8.8.8.8" > /etc/resolv.conf && echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-      
+
       - uses: docker/login-action@v1
         if: ${{ !env.ACT }}
         with:
@@ -119,14 +118,13 @@ jobs:
           fi
           echo Going to execute : $CMD
           echo ::set-output name=K8SPATCH::$CMD
-
       - name: Add github-ci User to AWS Credentials file
         continue-on-error: true
         run: echo "${{ secrets.AWS_CREDENTIALS }}" > /root/.aws/credentials
 
       - name: Create kubeconfig
         run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > /root/.kube/config
-      
+
       - name: Update version in Cluster
         if: ${{ !env.ACT }}
         run: "kubectl --insecure-skip-tls-verify patch ${{ inputs.K8S_OBJECTTYPE }} ${{ inputs.K8S_RESOURCENAME }} ${{ inputs.K8S_ADDITIONAL_RESOURCE }} -n ${{ inputs.K8S_NAMESPACE }} --patch '${{ steps.patch_cmd.outputs.K8SPATCH }}'"
