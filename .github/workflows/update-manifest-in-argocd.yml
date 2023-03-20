@@ -29,20 +29,30 @@ jobs:
   update_manifest:
     runs-on: self-hosted
     steps:
-      - name: Checkout argocd repo & update manifest
-        uses: actions/checkout@v3
+
+      - name: Checkout argocd repository
+        uses: actions/checkout@v2
         with:
           repository: HustleGotReal/argocd
-          ref: master
           token: ${{ secrets.GITHUB_PAT }}
-      - run: |
+
+      - name: Edit file
+        run: |
           # Update the version in the deployment manifest
           yq eval '.spec.template.spec.containers = [(.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
           "${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml -i"
 
-          # Push a commit
+      - name: Commit changes
+        run: |
           git config user.name hgrbot
           git config user.email hgrbot@gmail.com
           git add .
           git commit -m "Upload ${{ inputs.K8S_RESOURCENAME }} to version ${{ inputs.TAG }}"
-          git push
+
+      - name: Push commit
+        uses: actions/checkout@v3
+        with:
+          repository: HustleGotReal/argocd
+          token: ${{ secrets.GITHUB_PAT }}
+      - run: |
+          git push origin master
