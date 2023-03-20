@@ -36,6 +36,12 @@ jobs:
           repository: HustleGotReal/argocd
           token: ${{ secrets.GITHUB_PAT }}
 
+      - name: Check initial folder
+        run: |
+          echo "Checked out code"
+          ls -la
+          echo $PWD
+
       - name: Edit file
         run: |
           # Update the version in the deployment manifest
