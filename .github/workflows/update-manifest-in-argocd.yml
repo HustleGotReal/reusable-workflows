@@ -34,7 +34,7 @@ jobs:
           token: ${{ secrets.GITHUB_PAT }}
       - run: |
           # Update the version in the deployment manifest
-          yq eval ".spec.template.spec.containers(name==${{ inputs.K8S_CONTAINERNAME }}).image |= sub(\":.*\",\":${{ inputs.TAG }}\")" \
+          yq eval ".spec.template.spec.containers(name=='${{ inputs.K8S_CONTAINERNAME }}').image |= sub(\":.*\",\":${{ inputs.TAG }}\")" \
           "${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml"
 
           # Push a commit
