@@ -48,8 +48,15 @@ jobs:
           yq eval '.spec.template.spec.containers = [(.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
           "${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml" -i
 
+      - name: Check changes
+        id: check_changes
+        run: |
+          if git diff-index --quiet HEAD --; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit changes
-        if: git status --porcelain
+        if: ${{ steps.check_changes.outputs.changes != 'false' }}
         run: |
           git config user.name hgrbot
           git config user.email hgrbot@gmail.com
@@ -57,6 +64,6 @@ jobs:
           git commit -m "Upload ${{ inputs.K8S_RESOURCENAME }} to version ${{ inputs.TAG }}"
 
       - name: Push changes
-        if: git status --porcelain
+        if: ${{ steps.check_changes.outputs.changes != 'false' }}
         run: |
           git push origin master
