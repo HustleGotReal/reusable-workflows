@@ -56,7 +56,7 @@ jobs:
           git add .
           git commit -m "Upload ${{ inputs.K8S_RESOURCENAME }} to version ${{ inputs.TAG }}"
 
-      - name: ${{ "$(git status --porcelain)" }}
-        if: "$(git status --porcelain)"
+      - name: Push changes
+        if: ${{ "$(git status --porcelain)" }}
         run: |
           git push origin master
