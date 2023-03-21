@@ -48,14 +48,8 @@ jobs:
           yq eval '.spec.template.spec.containers = [(.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
           "${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml" -i
 
-      - name: Check for changes
-        run: |
-          if [[ -z "$(git status --porcelain)" ]]; then
-            echo "No changes detected. Skipping commit and push steps."
-            exit 0
-          fi
-
       - name: Commit changes
+        if: "$(git status --porcelain)"
         run: |
           git config user.name hgrbot
           git config user.email hgrbot@gmail.com
@@ -63,5 +57,6 @@ jobs:
           git commit -m "Upload ${{ inputs.K8S_RESOURCENAME }} to version ${{ inputs.TAG }}"
 
       - name: Push commit
+        if: "$(git status --porcelain)"
         run: |
           git push origin master
