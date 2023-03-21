@@ -53,6 +53,7 @@ jobs:
         run: |
           if git diff-index --quiet HEAD --; then
             echo "changes=false" >> $GITHUB_OUTPUT
+            echo "There are no changes in git"
           fi
 
       - name: Commit changes
