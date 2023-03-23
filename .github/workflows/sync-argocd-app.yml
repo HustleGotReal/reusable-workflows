@@ -17,5 +17,9 @@ jobs:
       - name: ArgoCD authentication
         run: argocd login grpc-argocd.hustlegotreal.net --username=syncmaster --password='${{ secrets.ARGOCD_TOKEN }}'
 
+      - name: ArgoCD app sync (dry-run)
+        run: argocd app sync ${{ inputs.ARGOCD_APPLICATION }} --dry-run
+
       - name: ArgoCD app sync
-        run: argocd app sync ${{ inputs.ARGOCD_APPLICATION }}
+        run: argocd app sync ${{ inputs.ARGOCD_APPLICATION }} --force
+
