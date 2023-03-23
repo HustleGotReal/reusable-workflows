@@ -12,29 +12,31 @@ jobs:
   build-and-push-image:
     uses: HustleGotReal/reusable-workflows/.github/workflows/build-container-image.yml@master
     with:
-      DOCKER_IMAGEBASE: hustlegotreal/newmicroapi
-      DOCKER_FILEPATH: ./src/NewMicroApi/Dockerfile
+      DOCKER_IMAGEBASE: hustlegotreal/microservice
+      DOCKER_FILEPATH: ./src/Microservice/Dockerfile
       DOCKER_CONTEXT_X: ./src/
     secrets:
       DOCKERHUB_TOKEN: ${{secrets.DOCKERHUB_TOKEN}}
       GPACKAGES_TOKEN: ${{secrets.GPACKAGES_TOKEN}}
 
-  update-kubernetes-resource:
+  update-resource:
     needs: build-and-push-image
-    uses: HustleGotReal/reusable-workflows/.github/workflows/deploy-k8s-generic-app.yml@master
+    uses: HustleGotReal/reusable-workflows/.github/workflows/update-manifest-in-argocd.yml@master
     with:
-      DOCKER_IMAGEBASE: hustlegotreal/newmicroapi
-      K8S_RESOURCENAME: newmicroapi
-      K8S_ADDITIONAL_RESOURCE: ""
-      K8S_OBJECTTYPE: deployment
-      K8S_CONTAINERNAME: newmicroapi
       K8S_NAMESPACE: live
+      K8S_OBJECTTYPE: deployment
+      K8S_RESOURCENAME: microservice
+      K8S_CONTAINERNAME: microservice
+      DOCKER_IMAGEBASE: ${{ needs.build-and-push-image.outputs.image_base }}
+      TAG: ${{ needs.build-and-push-image.outputs.source_tag }}
     secrets:
-      KUBECONFIG: ${{secrets.KUBECONFIG}}
-      AWS_CREDENTIALS: ${{secrets.AWS_CREDENTIALS}}
+      GITHUB_PAT: ${{secrets.GPACKAGES_TOKEN}}
 
-  analyze-code:
-    uses: HustleGotReal/reusable-workflows/.github/workflows/analyze-code-sonarqubecli.yml@master
+  synchronize-changes-in-cluster:
+    needs: update-resource
+    uses: HustleGotReal/reusable-workflows/.github/workflows/sync-argocd-app.yml@master
+    with:
+      ARGOCD_APPLICATION: microservice-eks
     secrets:
-      SONARQUBE_HOST: ${{secrets.SONARQUBE_HOST}}
-      SONARQUBE_TOKEN: ${{secrets.SONARQUBE_TOKEN}}
+      ARGOCD_TOKEN: ${{secrets.ARGOCD_TOKEN}}
+
