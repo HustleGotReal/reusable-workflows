@@ -45,7 +45,7 @@ jobs:
       - name: Edit file
         run: |
           cd ${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }} && ls -la
-          if ${{ inputs.K8S_OBJECTTYPE }} === 'cronjob'; then
+          if [ "${{ inputs.K8S_OBJECTTYPE }}" = "cronjob" ]; then
             yq eval '.spec.jobTemplate.spec.template.spec.containers = [(.spec.jobTemplate.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
             "${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml" -i
           else
