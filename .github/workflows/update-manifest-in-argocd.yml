@@ -35,6 +35,7 @@ jobs:
         with:
           repository: HustleGotReal/argocd
           token: ${{ secrets.GITHUB_PAT }}
+          ref: master
 
       - name: Check initial folder
         run: |
