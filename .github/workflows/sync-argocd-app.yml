@@ -21,5 +21,8 @@ jobs:
         run: argocd app sync ${{ inputs.ARGOCD_APPLICATION }} --dry-run
 
       - name: ArgoCD app sync
-        run: argocd app sync ${{ inputs.ARGOCD_APPLICATION }} --force --wait --timeout 300
+        run: argocd app sync ${{ inputs.ARGOCD_APPLICATION }} --force
+        
+      - name: Verify app status
+        run: argocd app wait ${{ inputs.ARGOCD_APPLICATION }} --sync --health --timeout 300
 
