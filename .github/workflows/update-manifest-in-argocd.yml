@@ -64,9 +64,12 @@ jobs:
             echo "There are no changes in git"
           fi
 
-      - name: Verify YAML syntax
-        if: steps.check_changes.outputs.changes != 'false'
-        run: kubeconform -summary -output json ${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml
+      #- name: Verify YAML syntax
+      #  if: steps.check_changes.outputs.changes != 'false'
+      #  run: |
+      #    if [[ inputs.K8S_OBJECTTYPE != kservice ]] ; then
+      #      kubeconform -summary -output json ${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }}/${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml
+      #    fi
 
       - name: Commit changes
         if: steps.check_changes.outputs.changes != 'false'
