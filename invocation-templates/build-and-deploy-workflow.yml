@@ -36,7 +36,7 @@ jobs:
     needs: update-resource
     uses: HustleGotReal/reusable-workflows/.github/workflows/sync-argocd-app.yml@master
     with:
-      ARGOCD_APPLICATION: microservice-eks
+      ARGOCD_APPLICATION: microservice
     secrets:
       ARGOCD_TOKEN: ${{secrets.ARGOCD_TOKEN}}
 
