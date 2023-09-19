@@ -6,7 +6,7 @@ on:
       ARGOCD_APPLICATION:
         type: string
         required: true
-      CUSTOM_TIMEOUT
+      CUSTOM_TIMEOUT:
         type: number
         required: false
     secrets:
