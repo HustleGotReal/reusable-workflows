@@ -6,6 +6,9 @@ on:
       ARGOCD_APPLICATION:
         type: string
         required: true
+      CUSTOM_TIMEOUT
+        type: number
+        required: false
     secrets:
       ARGOCD_TOKEN:
         required: true
@@ -24,5 +27,5 @@ jobs:
         run: argocd app sync ${{ inputs.ARGOCD_APPLICATION }} --force
         
       - name: Verify app status
-        run: argocd app wait ${{ inputs.ARGOCD_APPLICATION }} --sync --health --timeout 300
+        run: argocd app wait ${{ inputs.ARGOCD_APPLICATION }} --sync --health --timeout ${{ inputs.CUSTOM_TIMEOUT || 300 }}
 
