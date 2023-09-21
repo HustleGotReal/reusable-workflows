@@ -49,11 +49,11 @@ jobs:
           for RESOURCE_NAME in "${RESOURCE_NAMES[@]}"; do
             cd ${{ inputs.K8S_NAMESPACE }}/${RESOURCE_NAME} && ls -la
             if [ "${{ inputs.K8S_OBJECTTYPE }}" = "cronjob" ]; then
-              yq eval '.spec.jobTemplate.spec.template.spec.containers = [(.spec.jobTemplate.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
-              "${{ RESOURCE_NAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml" -i
+              yq eval '.spec.jobTemplate.spec.template.spec.containers = [(.spec.jobTemplate.spec.template.spec.containers[] | select(.name == "'"${inputs.K8S_CONTAINERNAME}"'") | .image = "'"${inputs.DOCKER_IMAGEBASE}:${inputs.TAG}"'")]' \
+              "${RESOURCE_NAME}-${inputs.K8S_OBJECTTYPE}.yaml" -i
             else
-              yq eval '.spec.template.spec.containers = [(.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
-              "${{ RESOURCE_NAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml" -i
+              yq eval '.spec.template.spec.containers = [(.spec.template.spec.containers[] | select(.name == "'"${inputs.K8S_CONTAINERNAME}"'") | .image = "'"${inputs.DOCKER_IMAGEBASE}:${inputs.TAG}"'")]' \
+              "${RESOURCE_NAME}-${inputs.K8S_OBJECTTYPE}.yaml" -i
             fi
           done
 
