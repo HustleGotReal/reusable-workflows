@@ -45,15 +45,15 @@ jobs:
 
       - name: Edit file
         run: |
-          cd ${{ inputs.K8S_NAMESPACE }}/${{ inputs.K8S_RESOURCENAME }} && ls -la
-          if [ "${{ inputs.K8S_OBJECTTYPE }}" = "cronjob" ]; then
-            yq eval '.spec.jobTemplate.spec.template.spec.containers = [(.spec.jobTemplate.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
-            "${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml" -i
-          else
-            yq eval '.spec.template.spec.containers = [(.spec.template.spec.containers[] | select(.name == "${{ inputs.K8S_CONTAINERNAME }}") | .image = "${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}")]' \
-            "${{ inputs.K8S_RESOURCENAME }}-${{ inputs.K8S_OBJECTTYPE }}.yaml" -i
+          IFS=',' read -ra RESOURCE_NAMES <<< "${{ inputs.K8S_RESOURCENAME }}"
+          for RESOURCE_NAME in "${RESOURCE_NAMES[@]}"; do
+           cd "${{ inputs.K8S_NAMESPACE }}/${RESOURCE_NAME}" || exit 1
+           if [ "${{ inputs.K8S_OBJECTTYPE }}" = "cronjob" ]; then
+             yq eval -i ".spec.jobTemplate.spec.template.spec.containers |= map(if .e.spec.template.spec.containers |= map(if .name == \"${{ inputs.K8S_CONTAINERNAME }}\" then .image = \"${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}\" else . end)" "${RESOURCE_NAME}-${{ inputs.K8S_OBJECTTYPE }}.yaml"
+           else
+           yq eval -i ".spec.template.spec.containers |= map(if .name == \"${{ inputs.K8S_CONTAINERNAME }}\" then .image = \"${{ inputs.DOCKER_IMAGEBASE }}:${{ inputs.TAG }}\" else . end)" "${RESOURCE_NAME}-${{ inputs.K8S_OBJECTTYPE }}.yaml"
           fi
-
+          done
       - name: Check changes
         id: check_changes
         run: |
