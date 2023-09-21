@@ -70,7 +70,7 @@ jobs:
         run: |
           for RESOURCE_NAME in ${{ inputs.K8S_RESOURCENAME }}; do
             RESOURCE_PATH="${{ inputs.K8S_NAMESPACE }}/${RESOURCE_NAME}"
-            kubeconform -summary -output json ${RESOURCE_PATH}-${{ inputs.K8S_OBJECTTYPE }}.yaml
+            kubeconform -summary -output json ${RESOURCE_PATH}/${RESOURCE_NAME}-${{ inputs.K8S_OBJECTTYPE }}.yaml
           done
 
       - name: Commit changes
