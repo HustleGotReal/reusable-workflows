@@ -24,7 +24,7 @@ jobs:
       DOTNET_CSPROJ: ./src/NewMicroApi.Client/NewMicroApi.Client.csproj
       RESTORE_SOURCES: --source https://api.nuget.org/v3/index.json
       CONFIGURATION: Release
-      FRAMEWORK: net5.0
+      FRAMEWORK: net6.0
       RUNTIME: linux-x64
       ADDITIONAL_PROPERTIES: ""
     secrets:
