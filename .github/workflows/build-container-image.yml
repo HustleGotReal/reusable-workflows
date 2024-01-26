@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           #submodules: false
           #lfs: true
@@ -70,7 +70,7 @@ jobs:
           echo "DOCKERIMAGEANDTAG=${{ inputs.DOCKER_IMAGEBASE }}:$BRANCH" >> $GITHUB_OUTPUT
           echo "Started by: $GITHUB_ACTOR | SHA: $GITHUB_SHA | Docker Tag: $BRANCH"
 
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         if: ${{ !env.ACT }}
         with:
           username: hustlegotreal
@@ -81,7 +81,7 @@ jobs:
 
       - name: Build and push Docker image
         id: docker_build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           push: true
           tags: ${{ steps.branch_name.outputs.DOCKERIMAGEANDTAG }}
