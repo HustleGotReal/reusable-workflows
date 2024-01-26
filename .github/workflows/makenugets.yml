@@ -35,7 +35,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           #submodules: false
           #lfs: true
@@ -63,6 +63,7 @@ jobs:
           echo "BRANCH: $BRANCH";
           echo "BRANCH=$BRANCH" >> $GITHUB_OUTPUT
           echo "Started by: $GITHUB_ACTOR | SHA: $GITHUB_SHA | Tag: ${GITHUB_REF#refs/tags/}"
+
       - name: Get Previous Tag
         id: get_previous_tag
         #uses: WyriHaximus/github-action-get-previous-tag@v1
@@ -75,6 +76,7 @@ jobs:
         run: |
           echo VERSION: ${{ steps.get_previous_tag.outputs.tag }}
           echo "VERSION=${{ steps.get_previous_tag.outputs.tag }}" >> $GITHUB_OUTPUT
+
       - name: Check if package exists
         run: |
           if [ $(curl --silent \
