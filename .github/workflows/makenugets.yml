@@ -130,7 +130,6 @@ jobs:
         uses: actions/delete-package-versions@v5
         with: 
           package-name: ${{ inputs.DOTNET_PROJECT }}
-          repo: 'nugets'
           token: ${{ secrets.GPACKAGES_TOKEN }}
           min-versions-to-keep: 40
           delete-only-pre-release-versions: "false"
