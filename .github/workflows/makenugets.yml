@@ -127,7 +127,7 @@ jobs:
       - name: Delete old nugets versions
         continue-on-error: true
         if: ${{ steps.branch_name.outputs.BRANCH }} == ""
-        uses: actions/delete-package-versions@v3
+        uses: actions/delete-package-versions@v5
         with: 
           package-name: ${{ inputs.DOTNET_PROJECT }}
           repo: 'nugets'
