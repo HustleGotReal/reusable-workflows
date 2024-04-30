@@ -120,7 +120,6 @@ jobs:
                dotnet tool install gpr -g
              fi
       - name: Push
-        continue-on-error: true # test
         run: /root/.dotnet/tools/gpr push nupkg-tmp/${{ inputs.DOTNET_PROJECT }}.${{ steps.version_num.outputs.VERSION }}*${{ steps.branch_name.outputs.BRANCH }}.nupkg --repository https://github.com/HustleGotReal/nugets -k ${GPACKAGESTOKEN}
         env:
           GPACKAGESTOKEN: ${{ secrets.GPACKAGES_TOKEN }}
@@ -131,6 +130,6 @@ jobs:
         uses: actions/delete-package-versions@v5
         with: 
           package-name: ${{ inputs.DOTNET_PROJECT }}
+          package-type: 'nuget'
           token: ${{ secrets.GPACKAGES_TOKEN }}
           min-versions-to-keep: 40
-          #delete-only-pre-release-versions: "false"
