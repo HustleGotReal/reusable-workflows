@@ -133,4 +133,4 @@ jobs:
           package-name: ${{ inputs.DOTNET_PROJECT }}
           token: ${{ secrets.GPACKAGES_TOKEN }}
           min-versions-to-keep: 40
-          delete-only-pre-release-versions: "false"
+          #delete-only-pre-release-versions: "false"
