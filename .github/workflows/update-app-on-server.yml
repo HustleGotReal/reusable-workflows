@@ -1,0 +1,62 @@
+
+name: Update and reload app on the server
+on:
+  workflow_call:
+    inputs:
+      PROJECT_DIR:
+        required: true
+        type: string
+      RELOAD_COMMAND:
+        required: true
+        type: string
+    secrets:
+      SSH_USER:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+
+jobs:
+  build-and-push-image:
+    runs-on: self-hosted
+
+    outputs:
+      tag: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - name: Check initial folder
+        run: |
+          echo "Checked out code"
+          ls -la
+          echo $PWD
+          echo ${GITHUB_WORKSPACE}/src
+          echo "PROJECT_DIR=${GITHUB_WORKSPACE}/src" >> $GITHUB_OUTPUT
+
+      - name: Extract Git Branch information
+        id: branch_name
+        run: |
+          MBRANCH=${GITHUB_REF#refs/*/}
+          BRANCH=${MBRANCH#feature/}
+          echo "BRANCH: $BRANCH";
+          [[ ! "$BRANCH" =~ ^master|[0-9]+\.[0-9]+\.[0-9]+$ ]] && BRANCH="${BRANCH}$(date +%s)"
+
+          echo "SOURCE_TAG=$BRANCH" >> $GITHUB_OUTPUT
+          echo "Started by: $GITHUB_ACTOR | SHA: $GITHUB_SHA"
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Using user with limited permissions
+      - name: SSH to server and pull changes
+        run: |
+          ssh ${{ secrets.SSH_USER }}@browserless.hustlegotreal.net 'cd ${{ inputs.PROJECT_DIR }} && git pull'
+
+      - name: Restart app
+        run: |
+          ssh ${{ secrets.SSH_USER }}@browserless.hustlegotreal.net 'cd ${{ inputs.PROJECT_DIR }} && ${{ inputs.RELOAD_COMMAND }}'
