@@ -9,7 +9,7 @@ on:
     secrets:
       SSH_USER:
         required: true
-      SSH_PRIVATE_KEY:
+      SSH_PASSWORD:
         required: true
 
 jobs:
@@ -31,12 +31,11 @@ jobs:
           echo "SOURCE_TAG=$BRANCH" >> $GITHUB_OUTPUT
           echo "Started by: $GITHUB_ACTOR | SHA: $GITHUB_SHA"
 
-      - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Execute remote ssh
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # Using user with limited permissions
-      - name: Restart app
-        run: |
-          ssh ${{ secrets.SSH_USER }}@browserless.hustlegotreal.net "${{ inputs.RELOAD_COMMAND }}"
+          host: browserless.hustlegotreal.net
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: ${{ inputs.RELOAD_COMMAND }}
