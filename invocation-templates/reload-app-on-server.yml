@@ -3,6 +3,7 @@ name: Reload app on the server
 
 on:
   workflow_dispatch:
+  push:
     tags:
       - '*.*.*'
       - 'v*.*.*'
