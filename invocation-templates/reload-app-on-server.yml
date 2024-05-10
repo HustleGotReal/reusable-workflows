@@ -1,0 +1,17 @@
+
+name: Reload app on the server
+
+on:
+  workflow_dispatch:
+    tags:
+      - '*.*.*'
+      - 'v*.*.*'
+
+jobs:
+  simple-job-for-reuse-workflow:
+    uses: HustleGotReal/reusable-workflows/.github/workflows/reload-app-on-server.yml@master
+    with:
+      RELOAD_COMMAND: ""
+    secrets:
+      SSH_USER: ${{secrets.SSH_USER}}
+      SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
