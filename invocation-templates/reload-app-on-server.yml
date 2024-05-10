@@ -1,5 +1,5 @@
 
-name: Update and reload app on the server
+name: Reload app on the server
 
 on:
   workflow_dispatch:
@@ -9,9 +9,8 @@ on:
 
 jobs:
   simple-job-for-reuse-workflow:
-    uses: HustleGotReal/reusable-workflows/.github/workflows/update-app-on-server.yml@master
+    uses: HustleGotReal/reusable-workflows/.github/workflows/reload-app-on-server.yml@master
     with:
-      PROJECT_PATH: ""
       RELOAD_COMMAND: ""
     secrets:
       SSH_USER: ${{secrets.SSH_USER}}
