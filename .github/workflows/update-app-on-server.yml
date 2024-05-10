@@ -1,11 +1,8 @@
 
-name: Update and reload app on the server
+name: Reload app on the server
 on:
   workflow_call:
     inputs:
-      PROJECT_DIR:
-        required: true
-        type: string
       RELOAD_COMMAND:
         required: true
         type: string
@@ -23,19 +20,6 @@ jobs:
       tag: ${{ steps.branch_name.outputs.SOURCE_TAG }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          clean: true
-
-      - name: Check initial folder
-        run: |
-          echo "Checked out code"
-          ls -la
-          echo $PWD
-          echo ${GITHUB_WORKSPACE}/src
-          echo "PROJECT_DIR=${GITHUB_WORKSPACE}/src" >> $GITHUB_OUTPUT
-
       - name: Extract Git Branch information
         id: branch_name
         run: |
@@ -53,10 +37,6 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       # Using user with limited permissions
-      - name: SSH to server and pull changes
-        run: |
-          ssh ${{ secrets.SSH_USER }}@browserless.hustlegotreal.net 'cd ${{ inputs.PROJECT_DIR }} && git pull'
-
       - name: Restart app
         run: |
-          ssh ${{ secrets.SSH_USER }}@browserless.hustlegotreal.net 'cd ${{ inputs.PROJECT_DIR }} && ${{ inputs.RELOAD_COMMAND }}'
+          ssh ${{ secrets.SSH_USER }}@browserless.hustlegotreal.net "${{ inputs.RELOAD_COMMAND }}"
