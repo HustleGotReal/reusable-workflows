@@ -69,6 +69,7 @@ jobs:
         #uses: WyriHaximus/github-action-get-previous-tag@v1
         run: |
           VERSIONPROPS=$(cat Directory.Build.props | grep "<VersionPrefix>" | cut -d ">" -f2 | cut -d "<" -f1)
+          VERSIONPROPS=$(echo "$VERSIONPROPS" | sed 's/^0*//')
           echo "tag=$VERSIONPROPS" >> $GITHUB_OUTPUT
         
       - name: Set VERSION variable from Directory.Build.props
