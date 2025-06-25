@@ -69,16 +69,13 @@ jobs:
         #uses: WyriHaximus/github-action-get-previous-tag@v1
         run: |
           VERSIONPROPS=$(cat Directory.Build.props | grep "<VersionPrefix>" | cut -d ">" -f2 | cut -d "<" -f1)
-          VERSIONPROPS=$(echo "$VERSIONPROPS" | sed 's/^0*//')
           echo "tag=$VERSIONPROPS" >> $GITHUB_OUTPUT
         
       - name: Set VERSION variable from Directory.Build.props
         id: version_num
         run: |
-          VERSION=${{ steps.get_previous_tag.outputs.tag }}
-          VERSION=$(echo "$VERSION" | sed 's/\b0\+\([1-9]\)/\1/g')
-          echo VERSION: $VERSION
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo VERSION: ${{ steps.get_previous_tag.outputs.tag }}
+          echo "VERSION=${{ steps.get_previous_tag.outputs.tag }}" >> $GITHUB_OUTPUT
 
       - name: Check if package exists
         run: |
