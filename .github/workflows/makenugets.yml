@@ -54,11 +54,11 @@ jobs:
         run: |
           MBRANCH=${GITHUB_REF#refs/*/}
           if [[ $MBRANCH == feature/* ]]; then
-            BRANCH="a-${MBRANCH#feature/}.$(date +%Y%m%d%H)$(printf %02d $((10#$(date +%M) / 10 * 10)))"
+            BRANCH="a-${MBRANCH#feature/}.$(date +%Y%m%d%H)$(printf %02d $((10#$(date +%M) / 5 * 5)))"
           elif [[ $MBRANCH == "master" ]] || [[ $MBRANCH == "main" ]]; then
             BRANCH="" ;
           else
-            BRANCH="${MBRANCH}.$(date +%Y%m%d%H)$(printf %02d $((10#$(date +%M) / 10 * 10)))"
+            BRANCH="${MBRANCH}.$(date +%Y%m%d%H)$(printf %02d $((10#$(date +%M) / 5 * 5)))"
           fi
           echo "BRANCH: $BRANCH";
           echo "BRANCH=$BRANCH" >> $GITHUB_OUTPUT
